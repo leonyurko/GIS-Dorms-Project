@@ -5,7 +5,8 @@ import LoginScreen from './LoginScreen';
 import RegisterScreen from './RegisterScreen';
 import ProfileScreen from './ProfileScreen';
 import MapScreen from './MapScreen';
-import DormsManagement from './DormsManagement'; // עדכון הייבוא של הקומפוננטה הנכונה
+import DormsManagement from './DormsManagement';
+import FavoritesScreen from './FavoritesScreen'; // ייבוא הקומפוננטה למועדפים
 
 function Navbar() {
   const { isLoggedIn, user, logout } = useAuth();
@@ -27,6 +28,9 @@ function Navbar() {
         <>
           <Link to="/map" style={{ margin: '0 15px', textDecoration: 'none', color: '#fff' }}>
             Map
+          </Link>
+          <Link to="/favorites" style={{ margin: '0 15px', textDecoration: 'none', color: '#fff' }}>
+            Favorites
           </Link>
           <Link to="/profile" style={{ margin: '0 15px', textDecoration: 'none', color: '#fff' }}>
             Profile
@@ -76,6 +80,7 @@ function App() {
           <Route path="/map" element={<ProtectedRoute><MapScreen /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>} />
           <Route path="/manage-dorms" element={<AdminRoute><DormsManagement /></AdminRoute>} />
+          <Route path="/favorites" element={<FavoritesScreen />} />
         </Routes>
       </Router>
     </AuthProvider>

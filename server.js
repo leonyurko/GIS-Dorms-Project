@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 
 const app = express();
 const PORT = 5000;
@@ -10,6 +11,7 @@ const PORT = 5000;
 app.use(cors());
 app.use(express.json());
 
+// MongoDB connection
 const MONGO_URI = 'mongodb+srv://leony:Aa12345678@gisproject.z3nww.mongodb.net/dorm_finder?retryWrites=true&w=majority';
 
 mongoose
@@ -23,34 +25,71 @@ mongoose
     process.exit(1);
   });
 
+// Schemas and Models
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Dorm' }] // הוספת שדה למועדפים
+});
+
+const FavoriteSchema = new mongoose.Schema({
+  userName: { type: String, required: true, unique: true }, // שם המשתמש
+  dorms: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Dorm' }] // מזהי מעונות
+});
+
+const Favorite = mongoose.model('Favorite', FavoriteSchema);
+
+
+const dormSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  phone: { type: String, required: true },
+  address: { type: String, required: true },
+  coordinates: {
+    lat: { type: Number, required: true },
+    lng: { type: Number, required: true },
+  },
 });
 
 const User = mongoose.model('User', userSchema);
+const Dorm = mongoose.model('Dorm', dormSchema);
 
+// Middleware for authentication
+const authenticateToken = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  console.log('Token received:', token); // לוג לראות את הטוקן שהתקבל
+  if (!token) {
+    console.error('No token provided');
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, 'secretKey');
+    req.user = decoded; // צרף את המידע של המשתמש לבקשה
+    console.log('Decoded token:', decoded); // לוג לראות את תוכן הטוקן המפוענח
+    next();
+  } catch (error) {
+    console.error('Invalid or expired token:', error.message);
+    res.status(403).json({ message: 'Invalid or expired token' });
+  }
+};
+
+
+
+// Routes
 app.get('/', (req, res) => {
   res.send('Welcome to the Dorm Finder API!');
 });
 
+// User Routes
 app.post('/api/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
-
     const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
-    }
+    if (existingUser) return res.status(400).json({ message: 'User already exists' });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = new User({
-      name,
-      email,
-      password: hashedPassword,
-    });
+    const user = new User({ name, email, password: hashedPassword });
 
     await user.save();
     res.status(201).json({ message: 'User registered successfully' });
@@ -63,141 +102,65 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
-
   if (user && (await bcrypt.compare(password, user.password))) {
-      const token = jwt.sign({ id: user._id, role: user.role }, 'secretKey');
-      res.json({ token, role: user.role });
+    const token = jwt.sign({ id: user._id }, 'secretKey');
+    res.json({ token });
   } else {
-      res.status(401).json({ message: 'Invalid credentials' });
+    res.status(401).json({ message: 'Invalid credentials' });
   }
 });
 
-app.get('/api/profile', async (req, res) => {
+app.get('/api/profile', authenticateToken, async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-      return res.status(401).json({ message: 'No token provided' });
-    }
+      const user = await User.findById(req.user.id);
+      if (!user) return res.status(404).json({ message: 'User not found' });
 
-    const decoded = jwt.verify(token, 'secretKey');
-    const user = await User.findById(decoded.id);
+      console.log("✅ User fetched from backend:", user);
 
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    res.json({ name: user.name, email: user.email });
+      res.json({
+          _id: user._id,  // ודא שה- ID נשלח ללקוח
+          name: user.name,
+          email: user.email,
+      });
   } catch (error) {
-    console.error('Error fetching profile:', error);
-    res.status(500).json({ message: 'Error fetching profile' });
+      console.error('❌ Error fetching profile:', error);
+      res.status(500).json({ message: 'Error fetching profile' });
   }
 });
 
-app.put('/api/profile', async (req, res) => {
-  try {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-      return res.status(401).json({ message: 'No token provided' });
-    }
 
-    const decoded = jwt.verify(token, 'secretKey');
+app.put('/api/update-profile', authenticateToken, async (req, res) => {
+  try {
     const { name, email } = req.body;
+    if (!name || !email) return res.status(400).json({ message: 'Name and email are required' });
 
-    const user = await User.findByIdAndUpdate(
-      decoded.id,
-      { name, email },
-      { new: true }
-    );
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    if (name.toLowerCase() === 'admin') {
+      return res.status(400).json({ message: 'Cannot use "admin" as a username' });
     }
 
-    res.json({ message: 'Profile updated successfully' });
-  } catch (error) {
-    console.error('Error updating profile:', error);
-    res.status(500).json({ message: 'Error updating profile' });
-  }
-});
-
-app.put('/api/change-password', async (req, res) => {
-  try {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-      return res.status(401).json({ message: 'No token provided' });
-    }
-
-    const decoded = jwt.verify(token, 'secretKey');
-    const { newPassword } = req.body;
-
-    if (!newPassword || newPassword.length < 6) {
-      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
-    }
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    await User.findByIdAndUpdate(decoded.id, { password: hashedPassword });
-
-    res.status(200).json({ message: 'Password updated successfully' });
-  } catch (error) {
-    console.error('Error changing password:', error);
-    res.status(500).json({ message: 'Error changing password' });
-  }
-});
-
-// עדכון פרטי משתמש
-app.put('/api/update-profile', async (req, res) => {
-  try {
-    // הדפסת הכותרות והגוף של הבקשה
-    console.log('Request Headers:', req.headers);
-    console.log('Request Body:', req.body);
-
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-      console.log('No token provided');
-      return res.status(401).json({ message: 'No token provided' });
-    }
-
-    // בדוק את ה-token
-    console.log('Token:', token);
-
-    const decoded = jwt.verify(token, 'secretKey');
-    console.log('Decoded Token:', decoded);
-
-    const { name, email } = req.body;
-
-    // בדיקה אם השדות קיימים
-    if (!name || !email) {
-      console.log('Name or email missing:', { name, email });
-      return res.status(400).json({ message: 'Name and email are required' });
-    }
-
-    // עדכן את המשתמש
-    const updatedUser = await User.findByIdAndUpdate(
-      decoded.id,
-      { name, email },
-      { new: true } // מחזיר את הנתונים המעודכנים
-    );
-
-    if (!updatedUser) {
-      console.log('User not found for ID:', decoded.id);
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // הדפס את המשתמש המעודכן
-    console.log('Updated User:', updatedUser);
+    const updatedUser = await User.findByIdAndUpdate(req.user.id, { name, email }, { new: true });
+    if (!updatedUser) return res.status(404).json({ message: 'User not found' });
 
     res.json({ message: 'Profile updated successfully', user: updatedUser });
   } catch (error) {
-    console.error('Error updating profile:', error.message);
+    console.error('Error updating profile:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-const Dorm = require('./models/Dorm'); // נתיב למודל שיצרת
+app.delete('/api/delete-account', authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-// הוספת מעון חדש
-// הוספת מעון חדש
+    res.status(200).json({ message: 'Account deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting account:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Dorm Routes
 app.post('/api/dorms', async (req, res) => {
   try {
     console.log('Request body:', req.body); // לוג נתוני הבקשה
@@ -247,7 +210,112 @@ app.put('/api/dorms/:id', async (req, res) => {
   }
 });
 
+app.delete('/api/dorms/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid dorm ID' });
+    }
+
+    const deletedDorm = await Dorm.findByIdAndDelete(id);
+    if (!deletedDorm) {
+      return res.status(404).json({ message: 'Dorm not found' });
+    }
+
+    res.json({ message: 'Dorm deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting dorm:', error.message);
+    res.status(500).json({ message: 'Error deleting dorm' });
+  }
+});
+
+// הוספת מעון למועדפים
+app.post('/api/favorites/add', async (req, res) => {
+  console.log("Request received:", req.body);
+
+  const { userId, dormId } = req.body;
+
+  if (!userId || !dormId) {
+      console.error("❌ Missing userId or dormId:", req.body);
+      return res.status(400).json({ error: "Missing userId or dormId" });
+  }
+
+  try {
+      const user = await User.findById(userId);
+      if (!user) {
+          console.error("❌ User not found:", userId);
+          return res.status(404).json({ error: "User not found" });
+      }
+
+      if (!user.favorites.includes(dormId)) {
+          user.favorites.push(dormId);
+          await user.save();
+      }
+
+      console.log("✅ Dorm added to favorites:", user.favorites);
+      res.status(200).json({ message: "Dorm added to favorites", favorites: user.favorites });
+  } catch (error) {
+      console.error("❌ Error adding favorite:", error);
+      res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+
+
+app.get('/api/favorites/:userName', async (req, res) => {
+  try {
+    const { userName } = req.params;
+    const user = await User.findOne({ name: userName }).populate('favorites');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    console.log("Fetched favorites for user:", user.favorites);
+    res.json(user.favorites);
+  } catch (error) {
+    console.error('Error fetching favorites:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+
+
+
+
+
+app.delete('/api/favorites/remove', async (req, res) => {
+  try {
+      const { userId, dormId } = req.body;
+      if (!userId || !dormId) {
+          return res.status(400).json({ message: "Missing userId or dormId" });
+      }
+
+      // מציאת המשתמש במסד הנתונים
+      const user = await User.findById(userId);
+      if (!user) {
+          return res.status(404).json({ message: "User not found" });
+      }
+
+      // הסרת ה-ID של המעון מהמועדפים
+      user.favorites = user.favorites.filter(id => id.toString() !== dormId);
+      await user.save();
+
+      res.status(200).json({ message: "Dorm removed from favorites", favorites: user.favorites });
+  } catch (error) {
+      console.error("🚨 Error removing from favorites:", error);
+      res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+
+
+
+// Start the server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

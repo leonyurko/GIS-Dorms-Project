@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
+import { deleteUserAccount } from './api';
 
 function ProfileScreen() {
-  const { token } = useAuth();
+  const { token, logout } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [userId, setUserId] = useState(''); // הוספת userId
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -26,8 +28,10 @@ function ProfileScreen() {
         }
 
         const data = await response.json();
+        console.log('Fetched user profile:', data); // לוג לנתוני המשתמש
         setName(data.name);
         setEmail(data.email);
+        setUserId(data._id); // שמירת userId מהשרת
         setIsLoading(false);
       } catch (error) {
         console.error('Error fetching profile:', error.message);
@@ -53,7 +57,14 @@ function ProfileScreen() {
         const errorData = await response.json().catch(() => {
           throw new Error('Unexpected response format from server');
         });
-        throw new Error(errorData.message || 'Failed to save profile details');
+  
+        // בדיקת שגיאה במקרה של שם משתמש "admin"
+        if (errorData.message === 'Cannot use "admin" as a username') {
+          alert('Cannot use "admin" as a username. Please choose a different name.');
+        } else {
+          throw new Error(errorData.message || 'Failed to save profile details');
+        }
+        return; // יציאה מוקדמת אם הייתה שגיאה
       }
   
       const data = await response.json();
@@ -63,7 +74,6 @@ function ProfileScreen() {
       alert(error.message || 'Error saving profile details. Please try again later.');
     }
   };
-  
   
 
   const handlePasswordChange = async () => {
@@ -95,6 +105,25 @@ function ProfileScreen() {
       alert(error.message || 'Error changing password. Please try again later.');
     }
   };
+
+  console.log('Attempting to delete account with userId:', userId);
+  const handleDeleteAccount = async () => {
+    if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+      try {
+        console.log('Attempting to delete account...');
+        const response = await deleteUserAccount(token); // העברת הטוקן בלבד
+        console.log('Response from server:', response.data);
+  
+        alert('Your account has been deleted.');
+        logout(); // התנתקות מהאפליקציה לאחר המחיקה
+      } catch (error) {
+        console.error('Error deleting account:', error.response?.data || error.message);
+        alert(error.response?.data?.message || 'Error deleting account. Please try again later.');
+      }
+    }
+  };
+  
+
 
   if (isLoading) {
     return <p>Loading profile...</p>;
@@ -141,6 +170,21 @@ function ProfileScreen() {
       <br />
       <button onClick={handlePasswordChange} style={{ marginTop: '20px' }}>
         Change Password
+      </button>
+      <br />
+      <button
+        onClick={handleDeleteAccount}
+        style={{
+          marginTop: '30px',
+          padding: '10px 20px',
+          backgroundColor: 'red',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer',
+        }}
+      >
+        Delete Account
       </button>
     </div>
   );

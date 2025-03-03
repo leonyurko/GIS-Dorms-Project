@@ -6,21 +6,27 @@ function DormsManagement() {
   const [editingDorm, setEditingDorm] = useState(null);
 
   useEffect(() => {
-    // Fetching dorms from the server
-    fetch('http://localhost:5000/api/dorms')
-      .then((res) => {
-        if (!res.ok) {
+    const fetchDorms = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/dorms');
+
+        if (!response.ok) {
           throw new Error('Failed to fetch dorms');
         }
-        return res.json();
-      })
-      .then((data) => setDorms(data))
-      .catch((err) => console.error('Error fetching dorms:', err));
+
+        const data = await response.json();
+        setDorms(data);
+      } catch (error) {
+        console.error('Error fetching dorms:', error);
+        alert('Error fetching dorms: ' + error.message);
+      }
+    };
+
+    fetchDorms();
   }, []);
 
   const handleSubmit = async () => {
     try {
-      // Fetch coordinates for the address
       const geocodeResponse = await fetch(
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
           form.address
@@ -36,7 +42,6 @@ function DormsManagement() {
       const { lat, lon } = geocodeData[0];
 
       if (editingDorm) {
-        // Update existing dorm
         const response = await fetch(`http://localhost:5000/api/dorms/${editingDorm._id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -52,8 +57,7 @@ function DormsManagement() {
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Failed to update dorm');
+          throw new Error('Failed to update dorm');
         }
 
         alert('Dorm updated successfully');
@@ -66,7 +70,6 @@ function DormsManagement() {
         );
         setEditingDorm(null);
       } else {
-        // Add new dorm
         const response = await fetch('http://localhost:5000/api/dorms', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -82,8 +85,7 @@ function DormsManagement() {
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Failed to add dorm');
+          throw new Error('Failed to add dorm');
         }
 
         const newDorm = await response.json();
@@ -103,42 +105,123 @@ function DormsManagement() {
     setEditingDorm(dorm);
   };
 
+  const handleDelete = async (dormId) => {
+    if (window.confirm('Are you sure you want to delete this dorm?')) {
+      try {
+        const response = await fetch(`http://localhost:5000/api/dorms/${dormId}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to delete dorm');
+        }
+
+        alert('Dorm deleted successfully');
+        setDorms((prevDorms) => prevDorms.filter((dorm) => dorm._id !== dormId));
+      } catch (error) {
+        console.error('Error deleting dorm:', error.message);
+        alert('Error deleting dorm: ' + error.message);
+      }
+    }
+  };
+
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
       <h2>Manage Dorms</h2>
-      <input
-        type="text"
-        placeholder="Name"
-        value={form.name}
-        onChange={(e) => setForm({ ...form, name: e.target.value })}
-        style={{ margin: '10px', width: '300px' }}
-      />
-      <input
-        type="text"
-        placeholder="Phone"
-        value={form.phone}
-        onChange={(e) => setForm({ ...form, phone: e.target.value })}
-        style={{ margin: '10px', width: '300px' }}
-      />
-      <input
-        type="text"
-        placeholder="Address"
-        value={form.address}
-        onChange={(e) => setForm({ ...form, address: e.target.value })}
-        style={{ margin: '10px', width: '300px' }}
-      />
-      <button onClick={handleSubmit} style={{ marginTop: '20px' }}>
-        {editingDorm ? 'Update Dorm' : 'Add Dorm'}
-      </button>
-      <h3 style={{ marginTop: '30px' }}>Dorms List</h3>
-      <ul>
+
+      {/* טופס הוספה/עדכון */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+        <input
+          type="text"
+          placeholder="Name"
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          style={{ margin: '10px', width: '250px', padding: '5px' }}
+        />
+        <input
+          type="text"
+          placeholder="Phone"
+          value={form.phone}
+          onChange={(e) => setForm({ ...form, phone: e.target.value })}
+          style={{ margin: '10px', width: '250px', padding: '5px' }}
+        />
+        <input
+          type="text"
+          placeholder="Address"
+          value={form.address}
+          onChange={(e) => setForm({ ...form, address: e.target.value })}
+          style={{ margin: '10px', width: '250px', padding: '5px' }}
+        />
+        <button
+          onClick={handleSubmit}
+          style={{
+            margin: '10px',
+            padding: '10px 15px',
+            backgroundColor: '#007bff',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}
+        >
+          {editingDorm ? 'Update Dorm' : 'Add Dorm'}
+        </button>
+      </div>
+
+      {/* רשימת מעונות */}
+      <h3>Dorms List</h3>
+      <ul style={{ listStyleType: 'none', padding: 0 }}>
         {dorms.length > 0 ? (
           dorms.map((dorm) => (
-            <li key={dorm._id}>
-              <strong>{dorm.name}</strong> - {dorm.address} - {dorm.phone}
-              <button onClick={() => handleEdit(dorm)} style={{ marginLeft: '10px' }}>
-                Edit
-              </button>
+            <li
+              key={dorm._id}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                border: '1px solid #ccc',
+                padding: '15px',
+                borderRadius: '8px',
+                marginBottom: '10px',
+                backgroundColor: '#fff',
+                width: '50%',
+                marginLeft: 'auto',
+                marginRight: 'auto',
+              }}
+            >
+              <span>
+                <strong>{dorm.name}</strong> - {dorm.address} - {dorm.phone}
+              </span>
+              <div>
+                <button
+                  onClick={() => handleEdit(dorm)}
+                  style={{
+                    marginRight: '10px',
+                    backgroundColor: '#28a745',
+                    color: '#fff',
+                    border: 'none',
+                    padding: '5px 10px',
+                    cursor: 'pointer',
+                    borderRadius: '4px',
+                  }}
+                >
+                  ✏️ Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(dorm._id)}
+                  style={{
+                    backgroundColor: 'red',
+                    color: '#fff',
+                    border: 'none',
+                    padding: '5px 10px',
+                    cursor: 'pointer',
+                    borderRadius: '4px',
+                  }}
+                >
+                  🗑️ Delete
+                </button>
+              </div>
             </li>
           ))
         ) : (
