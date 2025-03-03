@@ -6,7 +6,7 @@ import RegisterScreen from './RegisterScreen';
 import ProfileScreen from './ProfileScreen';
 import MapScreen from './MapScreen';
 import DormsManagement from './DormsManagement';
-import FavoritesScreen from './FavoritesScreen'; // ייבוא הקומפוננטה למועדפים
+import FavoritesScreen from './FavoritesScreen'; 
 
 function Navbar() {
   const { isLoggedIn, user, logout } = useAuth();
