@@ -62,8 +62,6 @@ export const addToFavorites = async (userId, dormId) => {
   }
 };
 
-
-
 // הסרת מעון מהמועדפים
 export const removeFromFavorites = async (userId, dormId) => {
   if (!userId || !dormId) {

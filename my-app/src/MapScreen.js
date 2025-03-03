@@ -65,7 +65,7 @@ function MapScreen() {
 
     fetchDorms();
     fetchFavorites();
-  }, []);
+  }, [user]);
 
   // פונקציה להוספת מעון למועדפים
   const handleAddToFavorites = async (dormId) => {
