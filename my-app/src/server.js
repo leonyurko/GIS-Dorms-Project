@@ -88,6 +88,10 @@ app.post('/api/register', async (req, res) => {
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: 'User already exists' });
 
+    if (name.toLowerCase() === 'admin') {
+      return res.status(400).json({ message: 'Cannot use "admin" as a username' });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({ name, email, password: hashedPassword });
 
