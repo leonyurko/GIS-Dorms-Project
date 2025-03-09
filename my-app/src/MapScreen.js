@@ -5,7 +5,6 @@ import 'leaflet/dist/leaflet.css';
 import { addToFavorites, getFavorites, removeFromFavorites } from './api'; // API ניהול מועדפים
 import { useAuth } from './AuthContext';
 
-
 // יצירת אייקון מותאם אישית למעונות
 const customIcon = new L.Icon({
   iconUrl: 'https://cdn-icons-png.flaticon.com/512/854/854866.png',
@@ -132,92 +131,95 @@ function MapScreen() {
   };
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '20px' }}>
-      <h2>Find Dorms Near You</h2>
-      <div style={{ margin: '20px auto', width: '80%' }}>
+    <div style={{ textAlign: 'center', marginTop: '20px', fontFamily: 'Arial, sans-serif', color: '#333' }}>
+      <h2 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '20px' }}>Find Dorms Near You</h2>
+      <div style={{ margin: '20px auto', width: '80%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <input
           type="text"
           placeholder="Enter your work address"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
-          style={{ margin: '10px', width: '300px', padding: '5px' }}
+          style={{ margin: '10px', width: '300px', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
         />
         <button
           onClick={handleSearch}
           style={{
             margin: '10px',
-            padding: '5px 15px',
+            padding: '10px 20px',
             backgroundColor: '#007bff',
             color: '#fff',
             border: 'none',
             borderRadius: '4px',
             cursor: 'pointer',
+            fontSize: '16px',
           }}
         >
           Search
         </button>
       </div>
-      <MapContainer center={coordinates} zoom={15} style={{ height: '500px', width: '100%' }}>
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-        <ChangeMapView coords={coordinates} />
-        {dorms.map((dorm) => (
-          <Marker
-            key={dorm._id}
-            position={[dorm.coordinates.lat, dorm.coordinates.lng]}
-            icon={customIcon}
-          >
-            <Popup>
-              <strong>{dorm.name}</strong>
-              <br />
-              Phone: {dorm.phone}
-              <br />
-              Address: {dorm.address}
-              <br />
-              <a href={`/dorm/${dorm._id}`} target="_blank" rel="noopener noreferrer">
-                View Details
-              </a>
-              <br />
-              {Array.isArray(favorites) && favorites.includes(dorm._id && favorites.some(fav => fav === dorm._id)) ? (
-                <button
-                onClick={() => handleRemoveFromFavorites(dorm._id)}
-                  style={{
-                    marginTop: '10px',
-                    padding: '5px',
-                    backgroundColor: 'red',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  ★ Remove from Favorites
-                </button>
-              ) : (
-                <button
-                  onClick={() => handleAddToFavorites(dorm._id)}
-                  style={{
-                    marginTop: '10px',
-                    padding: '5px',
-                    backgroundColor: '#28a745',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  ☆ Add to Favorites
-                </button>
-              )}
-            </Popup>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+        <MapContainer center={coordinates} zoom={15} style={{ height: '600px', width: '95%', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
+          <ChangeMapView coords={coordinates} />
+          {dorms.map((dorm) => (
+            <Marker
+              key={dorm._id}
+              position={[dorm.coordinates.lat, dorm.coordinates.lng]}
+              icon={customIcon}
+            >
+              <Popup>
+                <strong>{dorm.name}</strong>
+                <br />
+                Phone: {dorm.phone}
+                <br />
+                Address: {dorm.address}
+                <br />
+                <a href={`/dorm/${dorm._id}`} target="_blank" rel="noopener noreferrer">
+                  View Details
+                </a>
+                <br />
+                {Array.isArray(favorites) && favorites.includes(dorm._id && favorites.some(fav => fav === dorm._id)) ? (
+                  <button
+                  onClick={() => handleRemoveFromFavorites(dorm._id)}
+                    style={{
+                      marginTop: '10px',
+                      padding: '5px',
+                      backgroundColor: 'red',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    ★ Remove from Favorites
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleAddToFavorites(dorm._id)}
+                    style={{
+                      marginTop: '10px',
+                      padding: '5px',
+                      backgroundColor: '#28a745',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    ☆ Add to Favorites
+                  </button>
+                )}
+              </Popup>
+            </Marker>
+          ))}
+          <Marker position={coordinates}>
+            <Popup>Location: {address || 'HIT - Holon Institute of Technology'}</Popup>
           </Marker>
-        ))}
-        <Marker position={coordinates}>
-          <Popup>Location: {address || 'HIT - Holon Institute of Technology'}</Popup>
-        </Marker>
-      </MapContainer>
+        </MapContainer>
+      </div>
     </div>
   );
 }

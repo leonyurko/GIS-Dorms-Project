@@ -1,0 +1,14 @@
+.main-screen {
+  text-align: center;
+  margin-top: 50px;
+}
+
+.main-screen h1 {
+  font-size: 36px;
+  color: #4a90e2;
+}
+
+.main-screen p {
+  font-size: 18px;
+  color: #333;
+}

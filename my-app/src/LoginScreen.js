@@ -25,28 +25,57 @@ function LoginScreen() {
     }
   };
 
+  const containerStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    height: '100vh',
+    backgroundColor: '#f0f2f5',
+    paddingTop: '50px',
+  };
+
+  const inputStyle = {
+    margin: '10px',
+    padding: '10px',
+    width: '300px',
+    borderRadius: '5px',
+    border: '1px solid #ccc',
+  };
+
+  const buttonStyle = {
+    marginTop: '20px',
+    padding: '10px 20px',
+    backgroundColor: '#4CAF50',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+  };
+
+  const titleStyle = {
+    marginBottom: '20px',
+    color: '#333',
+  };
+
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h2>Login</h2>
+    <div style={containerStyle}>
+      <h2 style={titleStyle}>Login</h2>
       <input
         type="email"
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        style={{ margin: '10px', width: '300px' }}
+        style={inputStyle}
       />
-      <br />
       <input
         type="password"
         placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        style={{ margin: '10px', width: '300px' }}
+        style={inputStyle}
       />
-      <br />
-      <button onClick={handleLogin} style={{ marginTop: '20px' }}>
-        Login
-      </button>
+      <button onClick={handleLogin} style={buttonStyle}>Login</button>
     </div>
   );
 }

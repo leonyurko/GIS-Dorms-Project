@@ -6,52 +6,31 @@ import RegisterScreen from './RegisterScreen';
 import ProfileScreen from './ProfileScreen';
 import MapScreen from './MapScreen';
 import DormsManagement from './DormsManagement';
-import FavoritesScreen from './FavoritesScreen'; 
+import FavoritesScreen from './FavoritesScreen';
+import './styles/Navbar.css';
+import './App.css';
 
 function Navbar() {
   const { isLoggedIn, user, logout } = useAuth();
 
   return (
-    <nav style={{ display: 'flex', justifyContent: 'center', padding: '10px', backgroundColor: '#007bff', color: '#fff' }}>
+    <nav className="navbar">
       {!isLoggedIn && (
         <>
-          <Link to="/login" style={{ margin: '0 15px', textDecoration: 'none', color: '#fff' }}>
-            Login
-          </Link>
-          <Link to="/register" style={{ margin: '0 15px', textDecoration: 'none', color: '#fff' }}>
-            Register
-          </Link>
+          <Link to="/login" className="navbar-link">Login</Link>
+          <Link to="/register" className="navbar-link">Register</Link>
         </>
       )}
 
       {isLoggedIn && (
         <>
-          <Link to="/map" style={{ margin: '0 15px', textDecoration: 'none', color: '#fff' }}>
-            Map
-          </Link>
-          <Link to="/favorites" style={{ margin: '0 15px', textDecoration: 'none', color: '#fff' }}>
-            Favorites
-          </Link>
-          <Link to="/profile" style={{ margin: '0 15px', textDecoration: 'none', color: '#fff' }}>
-            Profile
-          </Link>
+          <Link to="/map" className="navbar-link">Map</Link>
+          <Link to="/favorites" className="navbar-link">Favorites</Link>
+          <Link to="/profile" className="navbar-link">Profile</Link>
           {user?.name === 'admin' && (
-            <Link to="/manage-dorms" style={{ margin: '0 15px', textDecoration: 'none', color: '#fff' }}>
-              Manage Dorms
-            </Link>
+            <Link to="/manage-dorms" className="navbar-link">Manage Dorms</Link>
           )}
-          <button
-            onClick={logout}
-            style={{
-              margin: '0 15px',
-              backgroundColor: 'red',
-              color: '#fff',
-              border: 'none',
-              cursor: 'pointer',
-            }}
-          >
-            Logout
-          </button>
+          <button onClick={logout} className="navbar-button">Logout</button>
         </>
       )}
     </nav>
@@ -73,15 +52,17 @@ function App() {
     <AuthProvider>
       <Router>
         <Navbar />
-        <Routes>
-          <Route path="/" element={<h1 style={{ textAlign: 'center', marginTop: '50px' }}>Welcome to Dorm Finder App</h1>} />
-          <Route path="/login" element={<LoginScreen />} />
-          <Route path="/register" element={<RegisterScreen />} />
-          <Route path="/map" element={<ProtectedRoute><MapScreen /></ProtectedRoute>} />
-          <Route path="/profile" element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>} />
-          <Route path="/manage-dorms" element={<AdminRoute><DormsManagement /></AdminRoute>} />
-          <Route path="/favorites" element={<FavoritesScreen />} />
-        </Routes>
+        <div className="App">
+          <Routes>
+            <Route path="/" element={<h1>Welcome to Dorm Finder App</h1>} />
+            <Route path="/login" element={<LoginScreen />} />
+            <Route path="/register" element={<RegisterScreen />} />
+            <Route path="/map" element={<ProtectedRoute><MapScreen /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>} />
+            <Route path="/manage-dorms" element={<AdminRoute><DormsManagement /></AdminRoute>} />
+            <Route path="/favorites" element={<FavoritesScreen />} />
+          </Routes>
+        </div>
       </Router>
     </AuthProvider>
   );

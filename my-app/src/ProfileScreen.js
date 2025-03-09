@@ -130,14 +130,14 @@ function ProfileScreen() {
   }
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h2>Edit Profile</h2>
+    <div style={{ textAlign: 'center', marginTop: '50px', fontFamily: 'Arial, sans-serif', color: '#333' }}>
+      <h2 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '20px' }}>Edit Profile</h2>
       <input
         type="text"
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="Name"
-        style={{ margin: '10px', width: '300px' }}
+        style={{ margin: '10px', width: '300px', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
       />
       <br />
       <input
@@ -145,19 +145,19 @@ function ProfileScreen() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="Email"
-        style={{ margin: '10px', width: '300px' }}
+        style={{ margin: '10px', width: '300px', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
       />
       <br />
-      <button onClick={handleSaveDetails} style={{ marginTop: '20px' }}>
+      <button onClick={handleSaveDetails} style={{ marginTop: '20px', padding: '10px 20px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}>
         Save Details
       </button>
-      <h3 style={{ marginTop: '30px' }}>Change Password</h3>
+      <h3 style={{ marginTop: '30px', fontSize: '24px', fontWeight: 'bold' }}>Change Password</h3>
       <input
         type="password"
         placeholder="New Password"
         value={newPassword}
         onChange={(e) => setNewPassword(e.target.value)}
-        style={{ margin: '10px', width: '300px' }}
+        style={{ margin: '10px', width: '300px', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
       />
       <br />
       <input
@@ -165,10 +165,10 @@ function ProfileScreen() {
         placeholder="Confirm New Password"
         value={confirmPassword}
         onChange={(e) => setConfirmPassword(e.target.value)}
-        style={{ margin: '10px', width: '300px' }}
+        style={{ margin: '10px', width: '300px', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
       />
       <br />
-      <button onClick={handlePasswordChange} style={{ marginTop: '20px' }}>
+      <button onClick={handlePasswordChange} style={{ marginTop: '20px', padding: '10px 20px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}>
         Change Password
       </button>
       <br />
@@ -182,6 +182,7 @@ function ProfileScreen() {
           border: 'none',
           borderRadius: '5px',
           cursor: 'pointer',
+          fontSize: '16px',
         }}
       >
         Delete Account

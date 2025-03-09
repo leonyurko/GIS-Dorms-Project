@@ -50,8 +50,10 @@ function FavoritesScreen() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            fontFamily: 'Arial, sans-serif',
+            color: '#333',
         }}>
-            <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '20px' }}>My Favorite Dorms</h2>
+            <h2 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '20px' }}>My Favorite Dorms</h2>
             <ul style={{
                 listStyleType: 'none',
                 padding: 0,

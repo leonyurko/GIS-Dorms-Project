@@ -1,10 +1,22 @@
 .App {
   text-align: center;
+  font-family: 'Arial', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  padding-top: 60px; /* Adjust padding to ensure navbar doesn't hide content */
+  width: 90%; /* Make the width wider but not too much */
+  margin: 0 auto; /* Center the content */
 }
 
 .App-logo {
   height: 40vmin;
   pointer-events: none;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -14,18 +26,45 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: rgba(74, 144, 226, 0.8);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  color: #f5f5f5;
 }
 
 .App-link {
-  color: #61dafb;
+  color: #ff6f61;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: color 0.3s, border-bottom 0.3s;
+}
+
+.App-link:hover {
+  color: #ff3b30;
+  border-bottom: 2px solid #ff3b30;
+}
+
+button {
+  background-color: #4a90e2;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #357ab7;
 }
 
 @keyframes App-logo-spin {

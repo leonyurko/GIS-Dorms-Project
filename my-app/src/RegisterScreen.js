@@ -30,31 +30,64 @@ function RegisterScreen() {
     }
   };
 
+  const containerStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    height: '100vh',
+    backgroundColor: '#f0f2f5',
+    paddingTop: '50px',
+  };
+
+  const inputStyle = {
+    margin: '10px',
+    padding: '10px',
+    width: '300px',
+    borderRadius: '5px',
+    border: '1px solid #ccc',
+  };
+
+  const buttonStyle = {
+    marginTop: '20px',
+    padding: '10px 20px',
+    backgroundColor: '#4CAF50',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+  };
+
+  const titleStyle = {
+    marginBottom: '20px',
+    color: '#333',
+  };
+
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h2>Register</h2>
+    <div style={containerStyle}>
+      <h2 style={titleStyle}>Register</h2>
       <input
         type="text"
         placeholder="Name"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        style={{ margin: '10px' }}
+        style={inputStyle}
       />
       <input
         type="email"
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        style={{ margin: '10px' }}
+        style={inputStyle}
       />
       <input
         type="password"
         placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        style={{ margin: '10px' }}
+        style={inputStyle}
       />
-      <button onClick={handleRegister}>Register</button>
+      <button onClick={handleRegister} style={buttonStyle}>Register</button>
     </div>
   );
 }

@@ -127,51 +127,50 @@ function DormsManagement() {
   };
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h2>Manage Dorms</h2>
+    <div style={{ textAlign: 'center', marginTop: '50px', fontFamily: 'Arial, sans-serif', color: '#333' }}>
+      <h2 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '20px' }}>Manage Dorms</h2>
 
-      {/* טופס הוספה/עדכון */}
-      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap' }}>
         <input
           type="text"
           placeholder="Name"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
-          style={{ margin: '10px', width: '250px', padding: '5px' }}
+          style={{ margin: '10px', width: '250px', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
         />
         <input
           type="text"
           placeholder="Phone"
           value={form.phone}
           onChange={(e) => setForm({ ...form, phone: e.target.value })}
-          style={{ margin: '10px', width: '250px', padding: '5px' }}
+          style={{ margin: '10px', width: '250px', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
         />
         <input
           type="text"
           placeholder="Address"
           value={form.address}
           onChange={(e) => setForm({ ...form, address: e.target.value })}
-          style={{ margin: '10px', width: '250px', padding: '5px' }}
+          style={{ margin: '10px', width: '250px', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
         />
         <button
           onClick={handleSubmit}
           style={{
             margin: '10px',
-            padding: '10px 15px',
+            padding: '10px 20px',
             backgroundColor: '#007bff',
             color: '#fff',
             border: 'none',
             borderRadius: '4px',
             cursor: 'pointer',
+            fontSize: '16px',
           }}
         >
           {editingDorm ? 'Update Dorm' : 'Add Dorm'}
         </button>
       </div>
 
-      {/* רשימת מעונות */}
-      <h3>Dorms List</h3>
-      <ul style={{ listStyleType: 'none', padding: 0 }}>
+      <h3 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '20px' }}>Dorms List</h3>
+      <ul style={{ listStyleType: 'none', padding: 0, width: '80%', margin: '0 auto' }}>
         {dorms.length > 0 ? (
           dorms.map((dorm) => (
             <li
@@ -185,9 +184,7 @@ function DormsManagement() {
                 borderRadius: '8px',
                 marginBottom: '10px',
                 backgroundColor: '#fff',
-                width: '50%',
-                marginLeft: 'auto',
-                marginRight: 'auto',
+                boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
               }}
             >
               <span>
@@ -225,7 +222,7 @@ function DormsManagement() {
             </li>
           ))
         ) : (
-          <li>No dorms available</li>
+          <li style={{ fontSize: '18px', fontWeight: 'bold', color: 'gray' }}>No dorms available</li>
         )}
       </ul>
     </div>
